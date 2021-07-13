@@ -3,11 +3,14 @@ import React, { Component } from "react";
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/Spinner";
 import BookingList from "../components/Bookings/BookingList/BookingList";
+import BookingsChart from "../components/Bookings/BookingsChart/BookingsChart";
+import BookingControl from "../components/Bookings/BoookingControl/BookingControl";
 
 class BookingPage extends Component {
   state = {
     isLoading: false,
     bookings: [],
+    type: "list",
   };
 
   static contextType = AuthContext;
@@ -28,6 +31,7 @@ class BookingPage extends Component {
                 _id
                 title
                 date
+                price
               }
             }
           }
@@ -62,13 +66,16 @@ class BookingPage extends Component {
     this.setState({ isLoading: true });
     const requestBody = {
       query: `
-          mutation {
-            cancelBooking(bookingId: "${bookingId}") {
+          mutation CancelBooking($id: ID!) {
+            cancelBooking(bookingId: $id) {
               _id
               title
             }
           }
         `,
+      variables: {
+        id: bookingId,
+      },
     };
 
     fetch("http://localhost:9000/graphql", {
@@ -99,7 +106,37 @@ class BookingPage extends Component {
       });
   };
 
+  changeHandler = (type) => {
+    if (type === "list") {
+      this.setState({ type: "list" });
+    } else {
+      this.setState({ type: "chart" });
+    }
+  };
+
   render() {
+    //   let content = <Spinner />;
+    //   if (!this.state.isLoading) {
+    //     content = (
+    //       <React.Fragment>
+    //         <BookingControl
+    //           active={this.state.type}
+    //           onChange={this.changeHandler}
+    //         />
+    //         <div>
+    //           {this.state.type === "list" ? (
+    //             <BookingList
+    //               bookings={this.state.bookings}
+    //               onDelete={this.deleteBookingHandler}
+    //             />
+    //           ) : // <BookingsChart bookings={this.state.bookings} />
+    //           null}
+    //         </div>
+    //       </React.Fragment>
+    //     );
+    //   }
+    //   return <React.Fragment>{content}</React.Fragment>;
+    // }
     return (
       <React.Fragment>
         {this.state.isLoading ? (
